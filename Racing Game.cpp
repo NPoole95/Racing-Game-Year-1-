@@ -35,7 +35,11 @@ void main()
 {
 	// Create a 3D engine (using TLX engine here) and open a window for it
 	I3DEngine* myEngine = New3DEngine(kTLX);
-	myEngine->StartWindowed();
+
+	const int screenWidth = 1920;
+	const int screenHeight = 1080;
+
+	myEngine->StartWindowed(screenWidth, screenHeight);
 
 	// Add default folder for meshes and other media
 	myEngine->AddMediaFolder("./Media");
@@ -78,6 +82,14 @@ void main()
 	float cdTime = 3.5f;												// The starting value of the countdown timer (in seconds)
 	float boostTimer = 3.0f;											// The time limit of the boost per usage (in seconds)
 	float overheatTimer = 5.0f;											// the cars overheat timer (in seconds)
+
+	const int textXPos = 782;											// the position of the text displayed on the screen
+	const int textYPos = 50;
+	const int boostTextXPos = 650;										// the position of the text displayed on the screen for the boost
+	const int boostTextYPos = 850;
+	const int speedoXPosition = 650;
+	const int speedoYPosition = 720;
+	
 
 	int lapNumber = 0;													// The current number of laps completed
 	int lapLimit = 2;													// The maximum number of laps
@@ -322,7 +334,7 @@ void main()
 	aiDummy1 = dummyMesh->CreateModel(0.0f, 0.0f, 3.0f);						// Creates the AI cars front dummy at the given coordinates
 	aiDummy2 = dummyMesh->CreateModel(0.0f, 0.0f, -3.0f);						// Creates the AI cars rear dummy at the given coordinates
 	floor = floorMesh->CreateModel(0.0f, 0.0f, 0.0f);							// Creates the floor at the giver coordinates
-	aiRaceCar = raceCarMesh->CreateModel(0.0f, 0.0f, -20.0f);					// Creates the AI racecar at the given coordinates 
+	aiRaceCar = raceCarMesh->CreateModel(0.0f, -50.0f, -20.0f);					// Creates the AI racecar at the given coordinates 
 	cameraDummy = dummyMesh->CreateModel(0.0f, 0.0f, 0.0f);
 
 
@@ -356,9 +368,9 @@ void main()
 	IFont* hpFont = myEngine->LoadFont("Comic Sans MS", 36);					// Initializes the text used to display the players cars HP
 	IFont* boostFont = myEngine->LoadFont("Comic Sans MS", 136);				// Initializes the text used to show when the boost is active
 
-	ISprite* needle = myEngine->CreateSprite("needle.png", 350, 650);			// Creates the sprite of the speedometers needle
-	ISprite* speedo = myEngine->CreateSprite("speedo.png", 350, 620);			// Creates the sprite of the speedometer
-	ISprite* backdrop = myEngine->CreateSprite("ui_backdrop.jpg", 300, 550);	// Creates the sprite of the text backdrop
+	ISprite* needle = myEngine->CreateSprite("needle.png", speedoXPosition, speedoYPosition + 30);			// Creates the sprite of the speedometers needle
+	ISprite* speedo = myEngine->CreateSprite("speedo.png", speedoXPosition, speedoYPosition);			// Creates the sprite of the speedometer
+	ISprite* backdrop = myEngine->CreateSprite("ui_backdrop.jpg", textXPos, textYPos);	// Creates the sprite of the text backdrop
 
 
 	// The main game loop, repeat until engine is stopped
@@ -381,7 +393,7 @@ void main()
 		hpFont->Draw(outText.str(), 20, 50);
 		outText.str("");
 
-		needle->SetX(350 + speedOutput * 6);									// Moves the needle of the speedometer to match the cars speed
+		needle->SetX(speedoXPosition + speedOutput * 6);									// Moves the needle of the speedometer to match the cars speed
 
 		float frameTime = myEngine->Timer();									// generates the current frames frametime by calling the timer
 		float gameSpeed = thrustFactor * frameTime;								// creates the speed of the game by multiplying framtime by thrust
@@ -392,7 +404,7 @@ void main()
 		if (currentGameState == Start)											// Checks the state of the game
 		{
 			outText << "Hit Space To Start";									// Tells the user to hit space to begin the race
-			myFont->Draw(outText.str(), 300, 550);								// Displays this on screen
+			myFont->Draw(outText.str(), textXPos, textYPos);								// Displays this on screen
 			outText.str("");
 
 			if (myEngine->KeyHit(kStartKey))									// Waits for the user to hit space to start the race
@@ -406,7 +418,7 @@ void main()
 			stringstream countDown;												// Initializes the countdown
 			cdTime -= frameTime;												// Removes the frame time from the counter each frame
 			countDown << (int)cdTime;											// Displays the amount of time remaining as a while number
-			cdFont->Draw(countDown.str(), 625, 280);
+			cdFont->Draw(countDown.str(), screenWidth/half, 280);
 
 			if (cdTime < 1)														// Checks to see if the countdown has ended
 			{
@@ -416,7 +428,7 @@ void main()
 		if (currentGameState == Stage1)											// Checks the state of the game
 		{
 			outText << "Go!";													// Outputs the word 'Go!' to the screen to show the race has begun
-			myFont->Draw(outText.str(), 300, 550);
+			myFont->Draw(outText.str(), textXPos, textYPos);
 			outText.str("");
 			if (stageComplete[0] == true)										// Checks to see if the player has passed the first checkpoint
 			{
@@ -426,7 +438,7 @@ void main()
 		if (currentGameState == Stage2)											// Checks the state of the game
 		{
 			outText << "Stage 1 Complete!";										// Displays a message to show the player has passed the first checkpoint
-			myFont->Draw(outText.str(), 300, 550);
+			myFont->Draw(outText.str(), textXPos, textYPos);
 			outText.str("");
 			if (stageComplete[1] == true)										// Checks to see if the player has passed the second checkpoint	
 			{
@@ -436,7 +448,7 @@ void main()
 		if (currentGameState == Stage3)											// Checks the state of the game
 		{
 			outText << "Stage 2 Complete!";										// Displays a message to show the player has passed the second checkpoint
-			myFont->Draw(outText.str(), 300, 550);
+			myFont->Draw(outText.str(), textXPos, textYPos);
 			outText.str("");
 			if (stageComplete[2] == true)										// Checks to see if the player has passed the third checkpoint	
 			{
@@ -446,7 +458,7 @@ void main()
 		if (currentGameState == Stage4)											// Checks the state of the game
 		{
 			outText << "Stage 3 Complete!";										// Displays a message to show the player has passed the third checkpoint
-			myFont->Draw(outText.str(), 300, 550);
+			myFont->Draw(outText.str(), textXPos, textYPos);
 			outText.str("");
 			if (stageComplete[3] == true)										// Checks to see if the player has passed the fourth checkpoint	
 			{
@@ -474,7 +486,7 @@ void main()
 		if (currentGameState == Complete)										// Checks to see if the race has been completed
 		{
 			outText << "Race Complete! Hit 'R' to Restart!";					// Displays a message telling the user that the race is over
-			myFont->Draw(outText.str(), 300, 550);
+			myFont->Draw(outText.str(), textXPos, textYPos);
 			outText.str("");
 
 			if (myEngine->KeyHit(kRestartKey))
@@ -546,7 +558,7 @@ void main()
 					thrust.z = thrust.z * 1.5;				// Amplifies the cars Z thrust by 1.5
 
 					outText << "Boost Active";				// Displays a message so the user knows the boost is in use
-					boostFont->Draw(outText.str(), 200, 550);
+					boostFont->Draw(outText.str(), boostTextXPos, boostTextYPos);
 					outText.str("");
 				}
 			}
@@ -566,7 +578,7 @@ void main()
 				//boostTimer += frameTime * (3 / 5);			// Recharges the boost timer back to its origional amount
 
 				outText << "Boost Overheated";				// Displays a message to show the car has overheated
-				myFont->Draw(outText.str(), 200, 550);
+				myFont->Draw(outText.str(), boostTextXPos, boostTextYPos);
 				outText.str("");
 
 				overheatTimer -= frameTime;					// Starts a timer for the overheat
@@ -746,8 +758,8 @@ void main()
 					aiRaceCar->LookAt(aiPathDummy[i]);  // If this node has been reached, the car will Look at the neck one				
 				}
 			}
-			aiRaceCar->SetY(10);		// Used for testing the ai to see w hy it is dissapearing
-			aiRaceCar->MoveLocalZ(0.1); // Moves the AI car in the direction it was looking.
+			//aiRaceCar->SetY(10);		// Used for testing the ai to see w hy it is dissapearing
+			//aiRaceCar->MoveLocalZ(0.1); // Moves the AI car in the direction it was looking.
 
 			cout << aiRaceCar->GetX() << aiRaceCar->GetZ() << endl; // Outputs the AI cars coordinates to the console, used to track it in testing
 
